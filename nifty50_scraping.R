@@ -1,43 +1,33 @@
-#load libs
-
-library(tidyverse)
+#load the packages
 library(rvest)
-library(janitor)
+library(readr)
 
-#nse top gainers
+# https://www.dataquest.io/blog/web-scraping-in-r-rvest/
+# https://www.r-bloggers.com/2021/03/daily-stock-gainers-automated-web-scraping-in-r-with-github-actions/
+# Start by reading a HTML page with read_html():
+html <- read_html("https://www.firstbridgedata.com/deepdive/index/SGOL")
 
-url <- 'https://www.moneycontrol.com/stocks/marketstats/nsegainer/index.php'
+aberdeen <-html %>% html_nodes("tr") %>% .[[25]] %>% html_text 
+#get the  value
+num <- parse_number(aberdeen)
+# convert to data frame
+num <- as.data.frame(num)
 
-# extract html 
+ # https://www.geeksforgeeks.org/concatenation-of-elements-without-separator-in-r-programming-paste0-function/
+write_csv(num, paste0('data/',Sys.Date(),'-aberdeen.csv'))
 
-url_html <- read_html(url)
 
-#table extraction
 
-url_tables <- url_html %>% html_table(fill = TRUE)
 
-#extract relevant table
 
-top_gainers <- url_tables[[2]]
 
-#extract relevant columns
 
-top_gainers %>%
-  select(1:7) -> top_gainers
 
-top_gainers %>% 
-  clean_names() -> top_gainers
 
-top_gainers %>%
-  filter(!is.na(low)) -> top_gainers
 
-top_gainers %>%
-  separate(company_name,
-           into = 'company_name',
-           sep = '\t') -> top_gainers
-           
-           
- write_csv(top_gainers,paste0('data/',Sys.Date(),'_top_gainers','.csv'))    
+
+
+
  
 
 
